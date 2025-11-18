@@ -1,0 +1,12 @@
+# Pasta de 'build' do Maven (dentro da pasta do projeto)
+Banco-Java/target/
+
+# Arquivos do NetBeans (dentro da pasta do projeto)
+Banco-Java/nbproject/private/
+Banco-Java/build/
+Banco-Java/dist/
+Banco-Java/nbbuild/
+Banco-Java/nbdist/
+
+# Arquivos de log em qualquer lugar
+*.log
