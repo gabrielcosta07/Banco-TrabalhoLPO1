@@ -13,6 +13,9 @@ public class ContaCorrenteModel extends ContaModel {
     @Override
     public boolean saca(double valor) {
         if (valor <= 0) return false;
+
+        if (valor  > saldo) return false;
+
         if (saldo - valor >= -limite) {
             saldo -= valor;
             return true;
