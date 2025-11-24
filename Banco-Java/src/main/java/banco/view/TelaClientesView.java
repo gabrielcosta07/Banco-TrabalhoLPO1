@@ -19,6 +19,7 @@ public class TelaClientesView extends JFrame {
     private JButton btnAdicionar, btnAtualizar, btnExcluir, btnLimpar;
     private JButton btnBuscar, btnMostrarTodos, btnOrdenar;
 
+    private JPanel painelFormulario;
     private java.awt.event.AWTEventListener listenerGlobal;
 
     public TelaClientesView(GerenciadorBancoControler banco) {
@@ -32,7 +33,7 @@ public class TelaClientesView extends JFrame {
         JPanel painelPrincipal = new JPanel(new BorderLayout(10, 10));
         painelPrincipal.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        JPanel painelFormulario = criarPainelFormulario();
+        painelFormulario = criarPainelFormulario();
         JPanel painelTabela = criarPainelTabela();
         JPanel painelBusca = criarPainelBusca();
 
@@ -54,6 +55,8 @@ public class TelaClientesView extends JFrame {
 
             if (SwingUtilities.isDescendingFrom(origem, tabela)) return;
 
+            if (SwingUtilities.isDescendingFrom(origem, painelFormulario)) return;
+
             if (origem instanceof JButton) return;
             Component atual = origem;
             while (atual != null) {
@@ -64,8 +67,6 @@ public class TelaClientesView extends JFrame {
             limparSelecaoTabela();
         };
         Toolkit.getDefaultToolkit().addAWTEventListener(listenerGlobal, AWTEvent.MOUSE_EVENT_MASK);
-
-        registrarLimpaSelecaoEmComponentes(painelFormulario, painelBusca);
     }
 
     @Override
@@ -146,13 +147,13 @@ public class TelaClientesView extends JFrame {
         modelo = new ModeloTabelaClienteView(banco.getClientes());
         tabela = new JTable(modelo);
 
-        tabela.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        tabela.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
         tabela.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
-                int[] linhas = tabela.getSelectedRows();
-                if (linhas != null && linhas.length == 1) {
-                    preencherFormulario(linhas[0]);
+                int linha = tabela.getSelectedRow();
+                if (linha != -1) {
+                    preencherFormulario(linha);
                 }
             }
         });
@@ -193,45 +194,6 @@ public class TelaClientesView extends JFrame {
         return painel;
     }
 
-    private void registrarLimpaSelecaoEmComponentes(JPanel painelFormulario, JPanel painelBusca) {
-        java.awt.event.MouseAdapter limpaAoClicar = new java.awt.event.MouseAdapter() {
-            @Override public void mousePressed(java.awt.event.MouseEvent e) {
-                Component origem = (Component) e.getSource();
-                if (origem instanceof JButton) return;
-                Component atual = origem;
-                while (atual != null) {
-                    if (atual instanceof JButton) return;
-                    atual = atual.getParent();
-                }
-                if (!SwingUtilities.isDescendingFrom(origem, tabela)) {
-                    limparSelecaoTabela();
-                }
-            }
-        };
-        java.awt.event.FocusAdapter limpaAoFocar = new java.awt.event.FocusAdapter() {
-            @Override public void focusGained(java.awt.event.FocusEvent e) {
-                Component origem = (Component) e.getSource();
-                if (!SwingUtilities.isDescendingFrom(origem, tabela)) {
-                    limparSelecaoTabela();
-                }
-            }
-        };
-
-        txtNome.addMouseListener(limpaAoClicar);
-        txtNome.addFocusListener(limpaAoFocar);
-        txtSobrenome.addMouseListener(limpaAoClicar); txtSobrenome.addFocusListener(limpaAoFocar);
-        txtRg.addMouseListener(limpaAoClicar);        txtRg.addFocusListener(limpaAoFocar);
-        txtCpf.addMouseListener(limpaAoClicar);       txtCpf.addFocusListener(limpaAoFocar);
-        txtEndereco.addMouseListener(limpaAoClicar);  txtEndereco.addFocusListener(limpaAoFocar);
-
-        txtBusca.addMouseListener(limpaAoClicar);     txtBusca.addFocusListener(limpaAoFocar);
-        cbTipoBusca.addMouseListener(limpaAoClicar);  cbTipoBusca.addFocusListener(limpaAoFocar);
-        cbOrdenacao.addMouseListener(limpaAoClicar);  cbOrdenacao.addFocusListener(limpaAoFocar);
-
-        painelFormulario.addMouseListener(limpaAoClicar);
-        painelBusca.addMouseListener(limpaAoClicar);
-    }
-
     private void limparSelecaoTabela() {
         if (tabela != null) {
             tabela.clearSelection();
@@ -268,18 +230,14 @@ public class TelaClientesView extends JFrame {
     }
 
     private void atualizarCliente() {
-        int[] linhas = tabela.getSelectedRows();
-        if (linhas == null || linhas.length == 0) {
-            JOptionPane.showMessageDialog(this, "Selecione um cliente para atualizar!");
-            return;
-        }
-        if (linhas.length > 1) {
-            JOptionPane.showMessageDialog(this, "Selecione apenas um cliente para atualizar!");
+        int linha = tabela.getSelectedRow();
+        if (linha == -1) {
+            JOptionPane.showMessageDialog(this, "Selecione um cliente na tabela para atualizar!");
             return;
         }
         if (!validarCampos()) return;
 
-        ClienteModel clienteAntigo = modelo.getCliente(linhas[0]);
+        ClienteModel clienteAntigo = modelo.getCliente(linha);
 
         String nome = txtNome.getText();
         String sobrenome = txtSobrenome.getText();
@@ -288,15 +246,15 @@ public class TelaClientesView extends JFrame {
         String endereco = txtEndereco.getText();
 
         if (banco.existeNomeSobrenomeEmOutro(nome, sobrenome, clienteAntigo)) {
-            JOptionPane.showMessageDialog(this, "Já existe outro cliente com o mesmo Nome e Sobrenome.");
+            JOptionPane.showMessageDialog(this, "Já existe outro cliente com este nome.");
             return;
         }
         if (banco.existeRgEmOutro(rg, clienteAntigo)) {
-            JOptionPane.showMessageDialog(this, "Já existe outro cliente com o mesmo RG.");
+            JOptionPane.showMessageDialog(this, "Já existe outro cliente com este RG.");
             return;
         }
         if (banco.existeCpfEmOutro(cpf, clienteAntigo)) {
-            JOptionPane.showMessageDialog(this, "Já existe outro cliente com o mesmo CPF.");
+            JOptionPane.showMessageDialog(this, "Já existe outro cliente com este CPF.");
             return;
         }
 
@@ -373,9 +331,9 @@ public class TelaClientesView extends JFrame {
     private void ordenarClientes() {
         String tipoOrdenacao = (String) cbOrdenacao.getSelectedItem();
         List<ClienteModel> ordenados =
-            "Nome".equals(tipoOrdenacao)
-                ? banco.ordenarPorNome()
-                : banco.ordenarPorSobrenome();
+                "Nome".equals(tipoOrdenacao)
+                        ? banco.ordenarPorNome()
+                        : banco.ordenarPorSobrenome();
         atualizarTabela(ordenados);
     }
 

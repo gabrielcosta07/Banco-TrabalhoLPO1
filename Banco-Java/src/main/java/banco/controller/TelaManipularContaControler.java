@@ -1,6 +1,5 @@
 package main.java.banco.controller;
 
-import main.java.banco.model.ClienteModel;
 import main.java.banco.model.ContaCorrenteModel;
 import main.java.banco.model.ContaModel;
 
@@ -17,7 +16,7 @@ public class TelaManipularContaControler extends JFrame {
         this.banco = banco;
 
         setTitle("Manipular Conta");
-        setSize(500, 350);
+        setSize(500, 400);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
@@ -36,6 +35,7 @@ public class TelaManipularContaControler extends JFrame {
         painelInfo.setBorder(BorderFactory.createTitledBorder("Informações da Conta"));
         lblInfoConta = new JLabel("Nenhuma conta selecionada", SwingConstants.CENTER);
         lblInfoConta.setFont(new Font("Arial", Font.PLAIN, 14));
+        lblInfoConta.setOpaque(true);
         painelInfo.add(lblInfoConta, BorderLayout.CENTER);
 
         JPanel painelOperacoes = new JPanel(new GridLayout(5, 1, 10, 10));
@@ -80,10 +80,13 @@ public class TelaManipularContaControler extends JFrame {
         contaAtual = banco.buscarConta(cpf);
 
         if (contaAtual == null) {
-            JOptionPane.showMessageDialog(this, "Nenhuma conta encontrada para este CPF!");
+            JOptionPane.showMessageDialog(this, "Nenhuma conta encontrada para este CPF!\nVerifique se o CPF está correto.");
             lblInfoConta.setText("Nenhuma conta selecionada");
+            lblInfoConta.setForeground(Color.RED);
         } else {
             atualizarInfoConta();
+            lblInfoConta.setForeground(new Color(0, 100, 0));
+            JOptionPane.showMessageDialog(this, "Conta selecionada com sucesso!");
         }
     }
 
@@ -97,14 +100,20 @@ public class TelaManipularContaControler extends JFrame {
         }
     }
 
+    private double lerValor() throws NumberFormatException {
+        String texto = txtValor.getText().trim().replace(",", ".");
+        if (texto.isEmpty()) throw new NumberFormatException();
+        return Double.parseDouble(texto);
+    }
+
     private void realizarDeposito() {
         if (contaAtual == null) {
-            JOptionPane.showMessageDialog(this, "Selecione uma conta primeiro!");
+            JOptionPane.showMessageDialog(this, "ERRO: Selecione uma conta primeiro!");
             return;
         }
 
         try {
-            double valor = Double.parseDouble(txtValor.getText());
+            double valor = lerValor();
 
             if (contaAtual.deposita(valor)) {
                 JOptionPane.showMessageDialog(this, "Depósito realizado com sucesso!");
@@ -116,27 +125,25 @@ public class TelaManipularContaControler extends JFrame {
                                 "Para Conta Investimento, o valor deve ser maior ou igual ao depósito mínimo.");
             }
         } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "Digite um valor válido!");
+            JOptionPane.showMessageDialog(this, "Valor inválido! Digite apenas números.");
         }
     }
 
     private void realizarSaque() {
         if (contaAtual == null) {
-            JOptionPane.showMessageDialog(this, "Selecione uma conta primeiro!");
+            JOptionPane.showMessageDialog(this, "ERRO: Selecione uma conta primeiro!");
             return;
         }
 
         try {
-            double valor = Double.parseDouble(txtValor.getText());
-
-           contaAtual.getSaldo();
+            double valor = lerValor();
 
             if (!contaAtual.saca(valor)) {
                 String mensagem = "Erro: Saque não permitido.\n";
                 if (contaAtual instanceof ContaCorrenteModel) {
-                    mensagem += "Para Conta Corrente, o saldo não pode ultrapassar o limite.";
+                    mensagem += "Saldo insuficiente ou excede o limite.";
                 } else {
-                    mensagem += "Para Conta Investimento, o saldo deve permanecer acima do montante mínimo.";
+                    mensagem += "Saldo insuficiente ou viola o montante mínimo.";
                 }
                 JOptionPane.showMessageDialog(this, mensagem);
                 return;
@@ -145,13 +152,13 @@ public class TelaManipularContaControler extends JFrame {
             atualizarInfoConta();
             txtValor.setText("");
         } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "Digite um valor válido!");
+            JOptionPane.showMessageDialog(this, "Valor inválido! Digite apenas números.");
         }
     }
 
     private void verSaldo() {
         if (contaAtual == null) {
-            JOptionPane.showMessageDialog(this, "Selecione uma conta primeiro!");
+            JOptionPane.showMessageDialog(this, "ERRO: Selecione uma conta primeiro!");
             return;
         }
 
@@ -161,7 +168,7 @@ public class TelaManipularContaControler extends JFrame {
 
     private void remunerar() {
         if (contaAtual == null) {
-            JOptionPane.showMessageDialog(this, "Selecione uma conta primeiro!");
+            JOptionPane.showMessageDialog(this, "ERRO: Selecione uma conta primeiro!");
             return;
         }
 

@@ -95,6 +95,10 @@ public class TelaVincularContaView extends JFrame {
         painelCamposConta.repaint();
     }
 
+    private double parseDouble(String valor) throws NumberFormatException {
+        return Double.parseDouble(valor.trim().replace(",", "."));
+    }
+
     private void criarConta() {
         ClienteModel clienteSelecionado = (ClienteModel) cbClientes.getSelectedItem();
 
@@ -113,14 +117,14 @@ public class TelaVincularContaView extends JFrame {
             String tipoConta = (String) cbTipoConta.getSelectedItem();
             ContaModel novaConta;
 
+            double depositoInicial = parseDouble(txtDepositoInicial.getText());
+
             if ("Conta Corrente".equals(tipoConta)) {
-                double depositoInicial = Double.parseDouble(txtDepositoInicial.getText());
-                double limite = Double.parseDouble(txtLimite.getText());
+                double limite = parseDouble(txtLimite.getText());
                 novaConta = new ContaCorrenteModel(clienteSelecionado, depositoInicial, limite);
             } else {
-                double depositoInicial = Double.parseDouble(txtDepositoInicial.getText());
-                double montanteMinimo = Double.parseDouble(txtMontanteMinimo.getText());
-                double depositoMinimo = Double.parseDouble(txtDepositoMinimo.getText());
+                double montanteMinimo = parseDouble(txtMontanteMinimo.getText());
+                double depositoMinimo = parseDouble(txtDepositoMinimo.getText());
                 novaConta = new ContaInvestimentoModel(clienteSelecionado, depositoInicial,
                         montanteMinimo, depositoMinimo);
             }
@@ -132,7 +136,7 @@ public class TelaVincularContaView extends JFrame {
 
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(this,
-                    "Erro: Digite valores numéricos válidos!");
+                    "Erro: Digite valores numéricos válidos! Use ponto ou vírgula.");
         }
     }
 }
