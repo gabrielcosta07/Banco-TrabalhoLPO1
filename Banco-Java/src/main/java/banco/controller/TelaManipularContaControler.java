@@ -34,7 +34,7 @@ public class TelaManipularContaControler extends JFrame {
         JPanel painelInfo = new JPanel(new BorderLayout());
         painelInfo.setBorder(BorderFactory.createTitledBorder("Informações da Conta"));
         lblInfoConta = new JLabel("Nenhuma conta selecionada", SwingConstants.CENTER);
-        lblInfoConta.setFont(new Font("Arial", Font.PLAIN, 14));
+        lblInfoConta.setFont(new Font("Arial", Font.PLAIN, 12));
         lblInfoConta.setOpaque(true);
         painelInfo.add(lblInfoConta, BorderLayout.CENTER);
 
