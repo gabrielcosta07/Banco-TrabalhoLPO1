@@ -16,7 +16,7 @@ public class TelaManipularContaControler extends JFrame {
         this.banco = banco;
 
         setTitle("Manipular Conta");
-        setSize(500, 400);
+        setSize(500, 500);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
@@ -36,7 +36,12 @@ public class TelaManipularContaControler extends JFrame {
         lblInfoConta = new JLabel("Nenhuma conta selecionada", SwingConstants.CENTER);
         lblInfoConta.setFont(new Font("Arial", Font.PLAIN, 12));
         lblInfoConta.setOpaque(true);
-        painelInfo.add(lblInfoConta, BorderLayout.CENTER);
+
+        JScrollPane scrollPane = new JScrollPane(lblInfoConta);
+        scrollPane.setBorder(null);
+        scrollPane.getViewport().setOpaque(false); //
+        painelInfo.add(scrollPane, BorderLayout.CENTER);
+
 
         JPanel painelOperacoes = new JPanel(new GridLayout(5, 1, 10, 10));
         painelOperacoes.setBorder(BorderFactory.createTitledBorder("Operações"));

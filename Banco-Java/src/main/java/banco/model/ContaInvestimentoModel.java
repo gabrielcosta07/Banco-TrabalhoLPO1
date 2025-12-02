@@ -41,6 +41,6 @@ public class ContaInvestimentoModel extends ContaModel {
     public String toString() {
         return "Conta Investimento - Número: " + numero +
                 " - Saldo: R$ " + String.format("%.2f", saldo) +
-                " - Montante Mínimo: R$ " + String.format("%.2f", montanteMinimo);
+                " <br> Montante Mínimo: R$ " + String.format("%.2f", montanteMinimo);
     }
 }
